@@ -1,6 +1,4 @@
 const el = (id) => document.getElementById(id);
-
-/* ================= ELEMENTS ================= */
 const nameEl = el("name");
 const roleEl = el("role");
 const bioEl = el("bio");
@@ -68,24 +66,21 @@ const observerOptions = { threshold: 0.15 };
 
 const scrollObserver = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
-    // Reveal Elements
-    if (entry.isIntersecting && entry.target.classList.contains('reveal')) {
+    if (entry.isIntersecting && entry.target.classList.contains("reveal")) {
       entry.target.classList.add("active");
     }
-    
-    // Skill Bars
-    if (entry.isIntersecting && entry.target.classList.contains('bar')) {
+
+    if (entry.isIntersecting && entry.target.classList.contains("bar")) {
       const percent = entry.target.getAttribute("data-percent");
       entry.target.style.width = percent + "%";
     }
 
-    // Active Navbar Link Update
-    if (entry.isIntersecting && entry.target.tagName === 'SECTION') {
-      let id = entry.target.getAttribute('id');
+    if (entry.isIntersecting && entry.target.tagName === "SECTION") {
+      let id = entry.target.getAttribute("id");
       navItems.forEach(link => {
-        link.classList.remove('active');
-        if(link.getAttribute('href') === `#${id}`) {
-          link.classList.add('active');
+        link.classList.remove("active");
+        if (link.getAttribute("href") === `#${id}`) {
+          link.classList.add("active");
         }
       });
     }
@@ -96,11 +91,10 @@ revealElements.forEach((el) => scrollObserver.observe(el));
 bars.forEach((bar) => scrollObserver.observe(bar));
 sections.forEach((sec) => scrollObserver.observe(sec));
 
-
 /* ================= PROFILE API ================= */
 async function loadProfile() {
   try {
-    const res = await fetch("http://localhost:5000/profile");
+    const res = await fetch("/api/profile"); 
     const json = await res.json();
 
     const p = json?.data?.profile;
@@ -114,12 +108,11 @@ async function loadProfile() {
   }
 }
 
-
-/* ================= CHATBOT UPGRADE ================= */
+/* ================= CHATBOT ================= */
 chatToggle.addEventListener("click", () => {
   chatModal.classList.toggle("show");
-  if(chatModal.classList.contains("show")) {
-      chatToggle.classList.remove("pulse-anim");
+  if (chatModal.classList.contains("show")) {
+    chatToggle.classList.remove("pulse-anim");
   }
 });
 
@@ -129,15 +122,18 @@ closeChat.addEventListener("click", () => {
 
 function appendMessage(role, text) {
   const div = document.createElement("div");
-  div.className = `msg ${role === 'user' ? 'user-msg' : 'bot-msg'}`;
-  
-  const icon = role === 'user' ? '<i class="fa-solid fa-user"></i>' : '<i class="fa-solid fa-robot"></i>';
-  
+  div.className = `msg ${role === "user" ? "user-msg" : "bot-msg"}`;
+
+  const icon =
+    role === "user"
+      ? '<i class="fa-solid fa-user"></i>'
+      : '<i class="fa-solid fa-robot"></i>';
+
   div.innerHTML = `
     <div class="msg-avatar">${icon}</div>
     <div class="msg-bubble">${text}</div>
   `;
-  
+
   chatBox.appendChild(div);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
@@ -150,7 +146,9 @@ function showTypingIndicator() {
     <div class="msg-avatar"><i class="fa-solid fa-robot"></i></div>
     <div class="msg-bubble">
       <div class="typing-indicator">
-        <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
       </div>
     </div>
   `;
@@ -167,21 +165,18 @@ async function sendChat() {
   const text = userInput.value.trim();
   if (!text) return;
 
-  // 1. Tampilkan pesan user
   appendMessage("user", text);
   userInput.value = "";
-  
-  // 2. Tampilkan typing indicator bot
   showTypingIndicator();
 
   try {
     const res = await fetch(
-      `http://localhost:5000/chat?prompt=${encodeURIComponent(text)}`
+      `/api/chat?prompt=${encodeURIComponent(text)}` // ✅ FIX
     );
     const json = await res.json();
-    let content = json?.message?.content ?? "Tidak ada jawaban dari server.";
-    
-    // 3. Hapus typing & tampilkan jawaban
+    let content =
+      json?.message?.content ?? "Tidak ada jawaban dari server.";
+
     removeTypingIndicator();
     appendMessage("bot", content);
   } catch (err) {
@@ -195,8 +190,7 @@ userInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") sendChat();
 });
 
-
-/* ================= GUESTBOOK API ================= */
+/* ================= GUESTBOOK ================= */
 function renderMessages(messages) {
   messagesList.innerHTML = "";
 
@@ -205,7 +199,7 @@ function renderMessages(messages) {
     .reverse()
     .forEach((m) => {
       const card = document.createElement("div");
-      card.className = "message-card glass"; // Added glass class for premium look
+      card.className = "message-card glass";
 
       card.innerHTML = `
         <p class="who"><i class="fa-regular fa-user-circle"></i> ${m.name}</p>
@@ -218,7 +212,7 @@ function renderMessages(messages) {
 
 async function loadGuestbook() {
   try {
-    const res = await fetch("http://localhost:5000/guestbook");
+    const res = await fetch("/api/guestbook"); // ✅ FIX
     const json = await res.json();
     renderMessages(json.data || []);
   } catch (err) {
@@ -233,14 +227,14 @@ async function submitGuestbook(e) {
   const message = gbMessage.value.trim();
   if (!name || !message) return;
 
-  // Ubah state button saat loading
-  const btn = form.querySelector('button');
+  const btn = form.querySelector("button");
   const originalText = btn.innerHTML;
-  btn.innerHTML = 'Sending... <i class="fa-solid fa-spinner fa-spin"></i>';
+  btn.innerHTML =
+    'Sending... <i class="fa-solid fa-spinner fa-spin"></i>';
   btn.disabled = true;
 
   try {
-    const res = await fetch("http://localhost:5000/guestbook", {
+    const res = await fetch("/api/guestbook", { // ✅ FIX
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, message }),

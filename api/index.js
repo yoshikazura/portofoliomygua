@@ -18,13 +18,14 @@ app.use(cors());
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Serve static frontend. Current project keeps web assets in /public/Frontend.
+// Serve static frontend
 const publicPath = fs.existsSync(path.resolve(__dirname, "../public/Frontend"))
   ? path.resolve(__dirname, "../public/Frontend")
   : path.resolve(__dirname, "../public");
+
 app.use(express.static(publicPath));
 
-// guestbook file in project root
+// guestbook file
 const guestbookFile = path.resolve(__dirname, "../guestbook.json");
 
 function readGuestbook() {
@@ -42,19 +43,27 @@ function writeGuestbook(messages) {
   fs.writeFileSync(guestbookFile, JSON.stringify(messages, null, 2));
 }
 
-// Gemini (optional)
+// Gemini AI
 const genAI = new GoogleGenAI({
   apiKey: process.env.SECRET_KEY_GEMINI_API,
 });
 
-// API routes (tetap sama seperti punyamu)
-app.get("/profile", (req, res) => res.json({ status: true, statusCode: 200, data: profile }));
+/* ================= API ROUTES ================= */
 
-app.get("/chat", async (req, res) => {
+// ✅ PROFILE
+app.get("/api/profile", (req, res) =>
+  res.json({
+    status: true,
+    statusCode: 200,
+    data: profile,
+  })
+);
+
+// ✅ CHAT
+app.get("/api/chat", async (req, res) => {
   try {
     const prompt = req.query.prompt || "Halo!";
 
-    // fallback kalau apiKey belum ada
     if (!process.env.SECRET_KEY_GEMINI_API) {
       return res.status(200).json({
         status: "success",
@@ -72,7 +81,7 @@ app.get("/chat", async (req, res) => {
       contents: prompt,
       config: {
         systemInstruction:
-          "Kamu adalah CODEX Bot, yang membantu pengunjung website untuk memberikan informasi dan menjawab pertanyaan mereka. Jika ada yang bertanya apa itu codex, codex itu chat bot yang dibuat oleh himpunan mahasiswa UKRI menggunakan API dari gemini. Dan codex bot ini dibuat untuk himpunan mahasiswa informatika (HMIF) di universitas kebangsaan republik indonesia atau UKRI kamu bisa lihat disini untuk webiste ukri https://ukri.ac.id/ lokasi ukri ada di Jln. Terusan Halimun No.37 (Pelajar Pejuang 45) Bandung 40263, Jawa Barat",
+          "Kamu adalah CODEX Bot yang membantu pengunjung website.",
       },
     });
 
@@ -88,31 +97,60 @@ app.get("/chat", async (req, res) => {
       },
     });
   } catch (error) {
-    console.log(" ~ error:", error);
-    res.status(500).json({ status: "error", message: "Terjadi kesalahan pada server AI" });
+    console.log("AI Error:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Terjadi kesalahan pada server AI",
+    });
   }
 });
 
-app.get("/guestbook", (req, res) => res.json({ status: "success", data: readGuestbook() }));
+// ✅ GET GUESTBOOK
+app.get("/api/guestbook", (req, res) =>
+  res.json({
+    status: "success",
+    data: readGuestbook(),
+  })
+);
 
-app.post("/guestbook", (req, res) => {
+// ✅ POST GUESTBOOK
+app.post("/api/guestbook", (req, res) => {
   const { name, message } = req.body || {};
-  if (!name || !message) return res.status(400).json({ status: "error", message: "name dan message wajib diisi" });
+
+  if (!name || !message) {
+    return res.status(400).json({
+      status: "error",
+      message: "name dan message wajib diisi",
+    });
+  }
 
   const messages = readGuestbook();
-  const newMessage = { id: Date.now(), name: String(name), message: String(message), createdAt: new Date().toISOString() };
+
+  const newMessage = {
+    id: Date.now(),
+    name: String(name),
+    message: String(message),
+    createdAt: new Date().toISOString(),
+  };
+
   messages.push(newMessage);
   writeGuestbook(messages);
-  res.status(201).json({ status: "success", data: newMessage });
+
+  res.status(201).json({
+    status: "success",
+    data: newMessage,
+  });
 });
 
-// fallback SPA
+// SPA fallback
 app.get(/.*/, (req, res) => {
   res.sendFile(path.join(publicPath, "index.html"));
 });
 
-// Local dev: start server only when this file is run directly.
-const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === __filename;
+// Local dev only
+const isDirectRun =
+  process.argv[1] && path.resolve(process.argv[1]) === __filename;
+
 if (isDirectRun && !process.env.VERCEL) {
   const port = Number(process.env.PORT) || 3000;
   app.listen(port, () => {
@@ -120,5 +158,5 @@ if (isDirectRun && !process.env.VERCEL) {
   });
 }
 
-// For Vercel serverless deployment.
+// Export for Vercel
 export default app;
