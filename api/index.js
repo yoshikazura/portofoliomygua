@@ -6,7 +6,6 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 
 import { GoogleGenAI } from "@google/genai";
-import profile from "../data.json" with { type: "json" };
 
 dotenv.config();
 
@@ -18,7 +17,12 @@ app.use(cors());
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Serve static frontend
+// load profile JSON (lebih aman untuk Vercel)
+const profile = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, "../data.json"), "utf-8")
+);
+
+// serve static frontend
 const publicPath = fs.existsSync(path.resolve(__dirname, "../public/Frontend"))
   ? path.resolve(__dirname, "../public/Frontend")
   : path.resolve(__dirname, "../public");
@@ -34,13 +38,18 @@ function readGuestbook() {
     const raw = fs.readFileSync(guestbookFile, "utf-8");
     const data = JSON.parse(raw || "[]");
     return Array.isArray(data) ? data : [];
-  } catch {
+  } catch (err) {
+    console.log("Guestbook read error:", err);
     return [];
   }
 }
 
 function writeGuestbook(messages) {
-  fs.writeFileSync(guestbookFile, JSON.stringify(messages, null, 2));
+  try {
+    fs.writeFileSync(guestbookFile, JSON.stringify(messages, null, 2));
+  } catch (err) {
+    console.log("Guestbook write error:", err);
+  }
 }
 
 // Gemini AI
@@ -50,16 +59,16 @@ const genAI = new GoogleGenAI({
 
 /* ================= API ROUTES ================= */
 
-// ✅ PROFILE
-app.get("/api/profile", (req, res) =>
+// PROFILE
+app.get("/api/profile", (req, res) => {
   res.json({
     status: true,
     statusCode: 200,
     data: profile,
-  })
-);
+  });
+});
 
-// ✅ CHAT
+// CHAT
 app.get("/api/chat", async (req, res) => {
   try {
     const prompt = req.query.prompt || "Halo!";
@@ -70,7 +79,7 @@ app.get("/api/chat", async (req, res) => {
         message: {
           id: Date.now(),
           role: "assistant",
-          content: `Aku belum tersambung ke AI. Kamu tanya: "${prompt}"`,
+          content: `AI belum terhubung. Kamu tanya: "${prompt}"`,
           timestamp: new Date().toISOString(),
         },
       });
@@ -98,6 +107,7 @@ app.get("/api/chat", async (req, res) => {
     });
   } catch (error) {
     console.log("AI Error:", error);
+
     res.status(500).json({
       status: "error",
       message: "Terjadi kesalahan pada server AI",
@@ -105,15 +115,15 @@ app.get("/api/chat", async (req, res) => {
   }
 });
 
-// ✅ GET GUESTBOOK
-app.get("/api/guestbook", (req, res) =>
+// GET GUESTBOOK
+app.get("/api/guestbook", (req, res) => {
   res.json({
     status: "success",
     data: readGuestbook(),
-  })
-);
+  });
+});
 
-// ✅ POST GUESTBOOK
+// POST GUESTBOOK
 app.post("/api/guestbook", (req, res) => {
   const { name, message } = req.body || {};
 
@@ -147,16 +157,17 @@ app.get(/.*/, (req, res) => {
   res.sendFile(path.join(publicPath, "index.html"));
 });
 
-// Local dev only
+// local dev
 const isDirectRun =
   process.argv[1] && path.resolve(process.argv[1]) === __filename;
 
 if (isDirectRun && !process.env.VERCEL) {
   const port = Number(process.env.PORT) || 3000;
+
   app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
   });
 }
 
-// Export for Vercel
+// export for vercel
 export default app;

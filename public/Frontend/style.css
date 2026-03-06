@@ -1,4 +1,4 @@
-/* ================= CSS VARIABLES & THEME ================= */
+/*   CSS VARIABLES & THEME   */
 :root {
   --bg-main: #050505; /* Deep rich black */
   --bg-surface: rgba(255, 255, 255, 0.02);
@@ -17,7 +17,7 @@
   --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-/* ================= GLOBAL ================= */
+/*   GLOBAL   */
 * {
   margin: 0;
   padding: 0;
@@ -61,7 +61,7 @@ section {
   background: var(--primary);
 }
 
-/* ================= AMBIENT GLOW ================= */
+/*   AMBIENT GLOW   */
 .ambient-glow {
   position: fixed;
   width: 600px;
@@ -89,7 +89,7 @@ section {
   100% { transform: translate(50px, 50px); }
 }
 
-/* ================= GLASSMORPHISM ================= */
+/*   GLASSMORPHISM   */
 .glass {
   background: var(--bg-surface);
   backdrop-filter: blur(16px);
@@ -108,7 +108,7 @@ section {
   backdrop-filter: blur(10px);
 }
 
-/* ================= TYPOGRAPHY & BUTTONS ================= */
+/*   TYPOGRAPHY & BUTTONS   */
 .section-header {
   text-align: center;
   margin-bottom: 60px;
@@ -152,7 +152,7 @@ section {
   transform: translateY(-2px);
 }
 
-/* ================= LOADER ================= */
+/*   LOADER   */
 #loader {
   position: fixed;
   inset: 0;
@@ -187,7 +187,7 @@ section {
 }
 #loader.hidden { opacity: 0; visibility: hidden; }
 
-/* ================= NAVBAR ================= */
+/*   NAVBAR   */
 .navbar {
   position: fixed;
   top: 0;
@@ -256,7 +256,7 @@ section {
   transition: var(--transition);
 }
 
-/* ================= HERO ================= */
+/*   HERO   */
 .hero {
   min-height: 100vh;
   display: flex;
@@ -311,7 +311,7 @@ section {
   margin: 0 auto 40px auto;
 }
 
-/* ================= PROJECTS ================= */
+/*   PROJECTS   */
 .projects-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -379,7 +379,7 @@ section {
 .btn-icon.primary { color: var(--primary); }
 .btn-icon.primary:hover { text-shadow: 0 0 10px var(--primary-glow); }
 
-/* ================= SKILLS ================= */
+/*   SKILLS   */
 .skills-wrapper {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -425,7 +425,7 @@ section {
   box-shadow: 0 0 10px var(--primary-glow);
 }
 
-/* ================= GUESTBOOK ================= */
+/*   GUESTBOOK   */
 .guestbook-container {
   max-width: 650px;
   margin: auto;
@@ -487,7 +487,7 @@ section {
   font-size: 0.95rem;
 }
 
-/* ================= FLOATING CHAT ================= */
+/*   FLOATING CHAT   */
 .chat-toggle {
   position: fixed;
   bottom: 30px;
@@ -673,7 +673,7 @@ section {
   color: #fff;
 }
 
-/* ================= FOOTER ================= */
+/*   FOOTER   */
 .footer {
   padding: 60px 8% 30px 8%;
 }
@@ -741,7 +741,7 @@ section {
   padding-top: 30px;
 }
 
-/* ================= SCROLL REVEAL ANIMATION ================= */
+/*   SCROLL REVEAL ANIMATION   */
 .reveal {
   opacity: 0;
   transform: translateY(40px);
@@ -752,7 +752,7 @@ section {
   transform: translateY(0);
 }
 
-/* ================= RESPONSIVE ================= */
+/*   RESPONSIVE   */
 @media (max-width: 992px) {
   .hero h1 { font-size: 3rem; }
   section { padding: 100px 6%; }

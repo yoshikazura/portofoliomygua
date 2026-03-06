@@ -17,7 +17,7 @@ const chatToggle = el("chat-toggle");
 const chatModal = el("chat-modal");
 const closeChat = el("close-chat");
 
-/* ================= UI & MICRO INTERACTIONS ================= */
+/*   UI & MICRO INTERACTIONS   */
 
 // Loader Cinematic Fade
 window.addEventListener("load", () => {
@@ -91,7 +91,7 @@ revealElements.forEach((el) => scrollObserver.observe(el));
 bars.forEach((bar) => scrollObserver.observe(bar));
 sections.forEach((sec) => scrollObserver.observe(sec));
 
-/* ================= PROFILE API ================= */
+/*   PROFILE API   */
 async function loadProfile() {
   try {
     const res = await fetch("/api/profile"); 
@@ -108,7 +108,7 @@ async function loadProfile() {
   }
 }
 
-/* ================= CHATBOT ================= */
+/*   CHATBOT   */
 chatToggle.addEventListener("click", () => {
   chatModal.classList.toggle("show");
   if (chatModal.classList.contains("show")) {
@@ -190,7 +190,7 @@ userInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") sendChat();
 });
 
-/* ================= GUESTBOOK ================= */
+/*   GUESTBOOK   */
 function renderMessages(messages) {
   messagesList.innerHTML = "";
 
@@ -256,6 +256,6 @@ async function submitGuestbook(e) {
 
 form.addEventListener("submit", submitGuestbook);
 
-/* ================= INIT ================= */
+/*   INIT   */
 loadProfile();
 loadGuestbook();
